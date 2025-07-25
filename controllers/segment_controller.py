@@ -80,11 +80,22 @@ def get_segments_by_project(project_id):
     """Obtener segmentos por proyecto"""
     try:
         print(f'📹 Obteniendo segmentos del proyecto: {project_id}')
+        print(f'📋 Tipo de project_id: {type(project_id)}')
+        
+        # Validar project_id
+        if not project_id:
+            print('❌ project_id es None o vacío')
+            return jsonify({
+                'success': False,
+                'message': 'ID de proyecto requerido'
+            }), 400
         
         # Obtener base de datos
         db = get_db()
+        print(f'🗄️ Base de datos conectada: {db.name}')
         
         # Verificar que el proyecto existe
+        print(f'🔍 Verificando existencia del proyecto: {project_id}')
         project = Project.find_by_id(db, project_id)
         if not project:
             print(f'❌ Proyecto no encontrado: {project_id}')
@@ -93,13 +104,24 @@ def get_segments_by_project(project_id):
                 'message': 'Proyecto no encontrado'
             }), 404
         
+        print(f'✅ Proyecto encontrado: {project_id}')
+        
         # Obtener segmentos del proyecto
+        print(f'🔍 Buscando segmentos para proyecto: {project_id}')
         segments = Segment.find_by_project(db, project_id)
         
         print(f'✅ Segmentos encontrados: {len(segments)}')
         
         # Convertir a formato de respuesta
-        segments_data = [segment.to_response_dict() for segment in segments]
+        print('🔄 Convirtiendo segmentos a formato de respuesta...')
+        segments_data = []
+        for i, segment in enumerate(segments):
+            try:
+                segment_dict = segment.to_response_dict()
+                segments_data.append(segment_dict)
+                print(f'  ✅ Segmento {i+1} convertido: {segment_dict.get("_id", "sin_id")}')
+            except Exception as e:
+                print(f'  ❌ Error al convertir segmento {i+1}: {str(e)}')
         
         response = {
             'success': True,
@@ -116,6 +138,8 @@ def get_segments_by_project(project_id):
         
     except Exception as error:
         print('💥 Error al obtener segmentos del proyecto:', str(error))
+        import traceback
+        print('📋 Stack trace:', traceback.format_exc())
         return jsonify({
             'success': False,
             'message': 'Error al obtener segmentos del proyecto'

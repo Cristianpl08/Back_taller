@@ -1,6 +1,7 @@
 from flask import request, jsonify
 from models.user import User
 from config.database import get_db
+from config.jwt_config import generate_token, token_required, get_current_user
 
 def login():
     """Iniciar sesión de usuario"""
@@ -61,16 +62,21 @@ def login():
 
         print('✅ Contraseña correcta - Login exitoso')
 
-        # Respuesta exitosa
+        # Generar token JWT
+        token = generate_token(user._id, user.username, user.email)
+        print('🎫 Token JWT generado')
+
+        # Respuesta exitosa con token
         response = {
             'success': True,
             'message': 'Login exitoso',
             'data': {
-                'user': user.to_response_dict()
+                'user': user.to_response_dict(),
+                'token': token
             }
         }
 
-        print('📤 Enviando respuesta exitosa:', response)
+        print('📤 Enviando respuesta exitosa con token')
         return jsonify(response)
 
     except Exception as error:
@@ -79,6 +85,39 @@ def login():
             'success': False,
             'message': 'Error al iniciar sesión'
         }), 500
+
+def verify_auth():
+    """Verificar si el usuario está autenticado"""
+    try:
+        user = get_current_user()
+        
+        if not user:
+            return jsonify({
+                'success': False,
+                'message': 'Usuario no autenticado'
+            }), 401
+        
+        return jsonify({
+            'success': True,
+            'message': 'Usuario autenticado',
+            'data': {
+                'user': user.to_response_dict()
+            }
+        })
+        
+    except Exception as error:
+        print('💥 Error en verificación de autenticación:', str(error))
+        return jsonify({
+            'success': False,
+            'message': 'Error al verificar autenticación'
+        }), 500
+
+def logout():
+    """Cerrar sesión (el frontend debe eliminar el token)"""
+    return jsonify({
+        'success': True,
+        'message': 'Sesión cerrada exitosamente'
+    })
 
 def register():
     """Registrar un nuevo usuario"""

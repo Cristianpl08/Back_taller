@@ -29,8 +29,14 @@ CORS(app, origins='*', supports_credentials=False, methods=['GET', 'POST', 'PUT'
 def log_request():
     print(f"📨 {datetime.now().isoformat()} - {request.method} {request.path}")
     print('📋 Headers:', dict(request.headers))
-    if request.is_json and request.get_json():
-        print('📝 Body:', request.get_json())
+    # Solo intentar parsear JSON si la petición tiene contenido y es JSON
+    if request.content_length and request.content_length > 0 and request.is_json:
+        try:
+            body = request.get_json()
+            if body:
+                print('📝 Body:', body)
+        except Exception as e:
+            print('⚠️ Error al parsear JSON del body:', str(e))
 
 # Ruta de prueba
 @app.route('/', methods=['GET'])

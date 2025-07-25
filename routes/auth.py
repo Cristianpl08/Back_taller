@@ -1,5 +1,5 @@
 from flask import Blueprint
-from controllers.auth_controller import login, register
+from controllers.auth_controller import login, register, verify_auth, logout
 
 # Crear blueprint para autenticación
 auth_bp = Blueprint('auth', __name__)
@@ -13,4 +13,14 @@ def login_route():
 @auth_bp.route('/register', methods=['POST'])
 def register_route():
     """Registrar un nuevo usuario"""
-    return register() 
+    return register()
+
+@auth_bp.route('/verify', methods=['GET'])
+def verify_auth_route():
+    """Verificar si el usuario está autenticado"""
+    return verify_auth()
+
+@auth_bp.route('/logout', methods=['POST'])
+def logout_route():
+    """Cerrar sesión"""
+    return logout() 

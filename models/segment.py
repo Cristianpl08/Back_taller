@@ -6,11 +6,11 @@ class Segment:
                  description=None, descriptions_prosody=None, views=0, likes=0, 
                  _id=None, created_at=None, updated_at=None):
         self._id = _id
-        self.start_time = start_time
-        self.end_time = end_time
-        self.duration = end_time - start_time
-        self.views = views
-        self.likes = likes
+        self.start_time = start_time or 0
+        self.end_time = end_time or 0
+        self.duration = (self.end_time - self.start_time) if self.end_time and self.start_time else 0
+        self.views = views or 0
+        self.likes = likes or 0
         self.prosody = prosody
         self.prosody2 = prosody2
         self.description = description
@@ -22,8 +22,8 @@ class Segment:
     def to_dict(self):
         """Convertir a diccionario para MongoDB"""
         data = {
-            'start_time': self.start_time,
-            'end_time': self.end_time,
+            'startTime': self.start_time,      # ← camelCase
+            'endTime': self.end_time,          # ← camelCase
             'duration': self.duration,
             'views': self.views,
             'likes': self.likes,
@@ -31,9 +31,9 @@ class Segment:
             'prosody2': self.prosody2,
             'description': self.description,
             'descriptions_prosody': self.descriptions_prosody,
-            'project_id': ObjectId(self.project_id) if isinstance(self.project_id, str) else self.project_id,
-            'created_at': self.created_at,
-            'updated_at': self.updated_at
+            'projectid': ObjectId(self.project_id) if isinstance(self.project_id, str) else self.project_id,  # ← sin guión bajo
+            'createdAt': self.created_at,      # ← camelCase
+            'updatedAt': self.updated_at       # ← camelCase
         }
         if self._id:
             data['_id'] = self._id
@@ -44,17 +44,17 @@ class Segment:
         """Crear instancia desde diccionario de MongoDB"""
         return cls(
             _id=data.get('_id'),
-            start_time=data.get('start_time'),
-            end_time=data.get('end_time'),
-            project_id=data.get('project_id'),
+            start_time=data.get('startTime'),  # ← camelCase
+            end_time=data.get('endTime'),      # ← camelCase
+            project_id=data.get('projectid'),  # ← sin guión bajo
             prosody=data.get('prosody'),
             prosody2=data.get('prosody2'),
             description=data.get('description'),
             descriptions_prosody=data.get('descriptions_prosody', []),
             views=data.get('views', 0),
             likes=data.get('likes', 0),
-            created_at=data.get('created_at'),
-            updated_at=data.get('updated_at')
+            created_at=data.get('createdAt'),  # ← camelCase
+            updated_at=data.get('updatedAt')   # ← camelCase
         )
     
     @classmethod
@@ -72,9 +72,19 @@ class Segment:
     def find_by_project(cls, db, project_id):
         """Buscar segmentos por proyecto"""
         try:
-            segments_data = db.segments.find({'project_id': ObjectId(project_id)})
-            return [cls.from_dict(data) for data in segments_data]
-        except:
+            # Validar que project_id sea válido
+            if not project_id:
+                print(f'❌ project_id es None o vacío')
+                return []
+            
+            # Convertir a ObjectId
+            project_object_id = ObjectId(project_id)
+            segments_data = db.segments.find({'projectid': project_object_id})  # ← usar 'projectid'
+            segments = [cls.from_dict(data) for data in segments_data]
+            print(f'✅ Encontrados {len(segments)} segmentos para proyecto {project_id}')
+            return segments
+        except Exception as e:
+            print(f'❌ Error al buscar segmentos por proyecto {project_id}: {str(e)}')
             return []
     
     @classmethod
@@ -138,7 +148,7 @@ class Segment:
     def to_response_dict(self):
         """Convertir a diccionario para respuesta"""
         return {
-            '_id': str(self._id),
+            '_id': str(self._id) if self._id else None,
             'start_time': self.start_time,
             'end_time': self.end_time,
             'duration': self.duration,
@@ -148,7 +158,7 @@ class Segment:
             'prosody2': self.prosody2,
             'description': self.description,
             'descriptions_prosody': self.descriptions_prosody,
-            'project_id': str(self.project_id),
+            'project_id': str(self.project_id) if self.project_id else None,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         } 
