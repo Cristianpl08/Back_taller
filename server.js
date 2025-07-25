@@ -116,7 +116,19 @@ app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
   console.log(`📱 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
   console.log(`🌍 Ambiente: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`📊 Base de datos: ${process.env.MONGODB_URI || 'mongodb://localhost:27017/video-segments-player'}`);
+  
+  // Mostrar información de la base de datos de forma más segura
+  const dbUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/video-segments-player';
+  const dbInfo = dbUri.includes('@') 
+    ? `${dbUri.split('@')[1].split('/')[0]}` // Solo muestra el host en producción
+    : dbUri;
+  console.log(`📊 Base de datos: ${dbInfo}`);
+  
+  // Información adicional para producción
+  if (process.env.NODE_ENV === 'production') {
+    console.log(`🔒 Modo producción activado`);
+    console.log(`🌐 URL del servidor: https://tu-app-name.onrender.com`);
+  }
 });
 
 module.exports = app; 
