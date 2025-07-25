@@ -1,468 +1,236 @@
-# Video Segments Player - Backend API
+# Video Segments Player Backend
 
-Backend completo para la aplicación de reproductor de segmentos de video, desarrollado con Node.js, Express, MongoDB y JWT.
+Backend para la aplicación Video Segments Player desarrollado en Python con Flask.
 
 ## 🚀 Características
 
-- **Autenticación JWT** con bcrypt para contraseñas
-- **CRUD completo** para segmentos de video
-- **Gestión de usuarios** con perfiles y estadísticas
-- **Sistema de escenas** dentro de los segmentos
-- **Búsqueda y filtros** avanzados
-- **Paginación** para listas grandes
-- **Validación robusta** de datos de entrada
-- **Manejo de errores** centralizado
-- **CORS configurado** para frontend React
-- **Logs y monitoreo** para debugging
+- **Framework**: Flask (Python)
+- **Base de Datos**: MongoDB
+- **Autenticación**: Sistema de login/registro
+- **API RESTful**: Endpoints para proyectos y segmentos de video
+- **CORS**: Configurado para permitir peticiones desde cualquier origen
+- **Logging**: Sistema de logs detallado para debugging
 
-## 📋 Requisitos Previos
+## 📋 Requisitos
 
-- **Node.js** (versión 16 o superior)
-- **MongoDB** (versión 4.4 o superior)
-- **npm** o **yarn**
+- Python 3.8 o superior
+- MongoDB
+- pip (gestor de paquetes de Python)
 
 ## 🛠️ Instalación
 
-### 1. Clonar el repositorio
+1. **Clonar el repositorio**:
+   ```bash
+   git clone <url-del-repositorio>
+   cd Back_taller
+   ```
 
-```bash
-git clone <repository-url>
-cd video-segments-player-backend
-```
+2. **Crear entorno virtual** (recomendado):
+   ```bash
+   python -m venv venv
+   
+   # En Windows:
+   venv\Scripts\activate
+   
+   # En macOS/Linux:
+   source venv/bin/activate
+   ```
 
-### 2. Instalar dependencias
+3. **Instalar dependencias**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-```bash
-npm install
-```
+4. **Configurar variables de entorno**:
+   Crear un archivo `.env` en la raíz del proyecto:
+   ```env
+   MONGODB_URI=mongodb://localhost:27017/video-segments-player
+   MONGODB_DB=video-segments-player
+   PORT=5000
+   FLASK_ENV=development
+   ```
 
-### 3. Configurar variables de entorno
+5. **Ejecutar el servidor**:
+   ```bash
+   python app.py
+   ```
 
-Copia el archivo de ejemplo y configura tus variables:
-
-```bash
-cp env.example .env
-```
-
-Edita el archivo `.env` con tus configuraciones:
-
-```env
-# Servidor
-PORT=5000
-NODE_ENV=development
-
-# Base de Datos
-MONGODB_URI=mongodb://localhost:27017/video-segments-player
-
-# JWT
-JWT_SECRET=tu-clave-secreta-super-segura-aqui-cambiala-en-produccion
-JWT_EXPIRES_IN=24h
-
-# CORS
-FRONTEND_URL=http://localhost:5173
-
-# Logs
-LOG_LEVEL=info
-```
-
-### 4. Iniciar MongoDB
-
-Asegúrate de que MongoDB esté corriendo en tu sistema:
-
-```bash
-# En macOS con Homebrew
-brew services start mongodb-community
-
-# En Ubuntu/Debian
-sudo systemctl start mongod
-
-# En Windows
-net start MongoDB
-```
-
-### 5. Ejecutar migración de datos
-
-```bash
-npm run migrate
-```
-
-Esto creará:
-- Usuario administrador: `admin@example.com` / `Admin123!`
-- Usuario de prueba: `test@example.com` / `Test123!`
-- 5 segmentos de ejemplo con escenas
-
-### 6. Iniciar el servidor
-
-```bash
-# Desarrollo
-npm run dev
-
-# Producción
-npm start
-```
-
-El servidor estará disponible en `http://localhost:5000`
-
-## 📚 Documentación de la API
-
-### Base URL
-```
-http://localhost:5000/api
-```
+## 📡 Endpoints de la API
 
 ### Autenticación
+- `POST /api/auth/login` - Iniciar sesión
+- `POST /api/auth/register` - Registrar usuario
 
-Todas las rutas protegidas requieren el header de autorización:
-```
-Authorization: Bearer <token>
-```
+### Proyectos
+- `GET /api/projects/` - Obtener todos los proyectos
+- `GET /api/projects/<id>` - Obtener proyecto por ID
+- `POST /api/projects/` - Crear nuevo proyecto
+- `PUT /api/projects/<id>` - Actualizar proyecto
+- `DELETE /api/projects/<id>` - Eliminar proyecto
 
-### Endpoints de Autenticación
+### Segmentos
+- `GET /api/segments/` - Obtener todos los segmentos
+- `GET /api/segments/<id>` - Obtener segmento por ID
+- `GET /api/segments/project/<project_id>` - Obtener segmentos por proyecto
+- `POST /api/segments/` - Crear nuevo segmento
+- `PUT /api/segments/<id>` - Actualizar segmento
+- `DELETE /api/segments/<id>` - Eliminar segmento
+- `POST /api/segments/<id>/views` - Incrementar vistas
+- `POST /api/segments/<id>/likes` - Incrementar likes
 
-#### Registro de Usuario
-```http
-POST /auth/register
-Content-Type: application/json
+## 🗄️ Estructura de la Base de Datos
 
-{
-  "email": "usuario@ejemplo.com",
-  "name": "Nombre Usuario",
-  "password": "Contraseña123!"
-}
-```
-
-#### Login
-```http
-POST /auth/login
-Content-Type: application/json
-
-{
-  "email": "usuario@ejemplo.com",
-  "password": "Contraseña123!"
-}
-```
-
-#### Verificar Token
-```http
-GET /auth/verify
-Authorization: Bearer <token>
-```
-
-### Endpoints de Usuarios
-
-#### Obtener Perfil
-```http
-GET /users/profile
-Authorization: Bearer <token>
-```
-
-#### Actualizar Perfil
-```http
-PUT /users/profile
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "name": "Nuevo Nombre",
-  "email": "nuevo@email.com"
-}
-```
-
-#### Cambiar Contraseña
-```http
-PUT /users/change-password
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "currentPassword": "ContraseñaActual123!",
-  "newPassword": "NuevaContraseña123!"
-}
-```
-
-### Endpoints de Segmentos
-
-#### Obtener Todos los Segmentos
-```http
-GET /segments?page=1&limit=10&search=react&tags=javascript,react&sort=createdAt&order=desc
-```
-
-#### Obtener Segmento por ID
-```http
-GET /segments/:id
-```
-
-#### Crear Segmento
-```http
-POST /segments
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "title": "Mi Segmento",
-  "description": "Descripción del segmento",
-  "videoUrl": "https://ejemplo.com/video.mp4",
-  "startTime": 0,
-  "endTime": 120,
-  "scenes": [
-    {
-      "title": "Escena 1",
-      "startTime": 0,
-      "endTime": 30,
-      "description": "Descripción de la escena"
-    }
-  ],
-  "tags": ["javascript", "react"],
-  "isPublic": true
-}
-```
-
-#### Actualizar Segmento
-```http
-PUT /segments/:id
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "title": "Título Actualizado",
-  "description": "Nueva descripción"
-}
-```
-
-#### Eliminar Segmento
-```http
-DELETE /segments/:id
-Authorization: Bearer <token>
-```
-
-#### Mis Segmentos
-```http
-GET /segments/my-segments?page=1&limit=10
-Authorization: Bearer <token>
-```
-
-#### Buscar Segmentos
-```http
-GET /segments/search?q=react&page=1&limit=10
-```
-
-#### Segmentos Populares
-```http
-GET /segments/popular?limit=10
-```
-
-#### Segmentos Recientes
-```http
-GET /segments/recent?limit=10
-```
-
-#### Dar Like
-```http
-POST /segments/:id/like
-Authorization: Bearer <token>
-```
-
-#### Quitar Like
-```http
-POST /segments/:id/unlike
-Authorization: Bearer <token>
-```
-
-## 🔧 Scripts Disponibles
-
-```bash
-# Desarrollo
-npm run dev
-
-# Producción
-npm start
-
-# Tests
-npm test
-
-# Migración de datos
-npm run migrate
-```
-
-## 📊 Estructura de Datos
-
-### Usuario
-```javascript
-{
-  _id: ObjectId,
-  email: String (único),
-  name: String,
-  password: String (hasheada),
-  role: String (enum: 'user', 'admin'),
-  isActive: Boolean,
-  lastLogin: Date,
-  createdAt: Date,
-  updatedAt: Date
-}
-```
-
-### Segmento
-```javascript
-{
-  _id: ObjectId,
-  title: String,
-  description: String,
-  videoUrl: String,
-  startTime: Number,
-  endTime: Number,
-  duration: Number,
-  scenes: [{
-    _id: ObjectId,
-    title: String,
-    startTime: Number,
-    endTime: Number,
-    description: String
-  }],
-  createdBy: ObjectId (ref: User),
-  isPublic: Boolean,
-  tags: [String],
-  views: Number,
-  likes: Number,
-  createdAt: Date,
-  updatedAt: Date
-}
-```
-
-## 🔒 Seguridad
-
-- **Contraseñas hasheadas** con bcrypt (12 salt rounds)
-- **JWT tokens** con expiración configurable
-- **Validación de datos** con express-validator
-- **CORS configurado** para el frontend
-- **Helmet** para headers de seguridad
-- **Sanitización** de datos de entrada
-
-## 🚨 Manejo de Errores
-
-La API devuelve respuestas consistentes:
-
-### Éxito
+### Colección: users
 ```json
 {
-  "success": true,
-  "message": "Operación exitosa",
-  "data": { ... }
+  "_id": "ObjectId",
+  "username": "string",
+  "email": "string",
+  "password": "string",
+  "created_at": "datetime",
+  "updated_at": "datetime"
 }
 ```
 
-### Error
+### Colección: projects
 ```json
 {
-  "success": false,
-  "message": "Descripción del error",
-  "errors": ["Error específico 1", "Error específico 2"]
+  "_id": "ObjectId",
+  "video": "string (URL)",
+  "created_at": "datetime",
+  "updated_at": "datetime"
 }
 ```
 
-### Códigos de Estado HTTP
+### Colección: segments
+```json
+{
+  "_id": "ObjectId",
+  "start_time": "number",
+  "end_time": "number",
+  "duration": "number",
+  "views": "number",
+  "likes": "number",
+  "prosody": "string",
+  "prosody2": "string",
+  "description": "string",
+  "descriptions_prosody": ["string"],
+  "project_id": "ObjectId",
+  "created_at": "datetime",
+  "updated_at": "datetime"
+}
+```
 
-- `200` - Éxito
-- `201` - Creado
-- `400` - Error de validación
-- `401` - No autorizado
-- `403` - Prohibido
-- `404` - No encontrado
-- `500` - Error interno del servidor
+## 📁 Estructura del Proyecto
 
-## 🔍 Búsqueda y Filtros
+```
+Back_taller/
+├── app.py                 # Archivo principal de Flask
+├── requirements.txt       # Dependencias de Python
+├── run.py                # Script alternativo de ejecución
+├── env.example           # Ejemplo de variables de entorno
+├── config/
+│   ├── __init__.py
+│   └── database.py        # Configuración de MongoDB
+├── models/
+│   ├── __init__.py
+│   ├── user.py           # Modelo de Usuario
+│   ├── project.py        # Modelo de Proyecto
+│   └── segment.py        # Modelo de Segmento
+├── controllers/
+│   ├── __init__.py
+│   ├── auth_controller.py    # Controlador de autenticación
+│   ├── project_controller.py # Controlador de proyectos
+│   └── segment_controller.py # Controlador de segmentos
+└── routes/
+    ├── __init__.py
+    ├── auth.py           # Rutas de autenticación
+    ├── projects.py       # Rutas de proyectos
+    └── segments.py       # Rutas de segmentos
+```
 
-### Parámetros de Consulta
+## 🔧 Desarrollo
 
-- `page` - Número de página (default: 1)
-- `limit` - Elementos por página (default: 10, max: 100)
-- `search` - Búsqueda por texto en título y descripción
-- `tags` - Filtro por tags (separados por coma)
-- `sort` - Campo de ordenamiento (title, createdAt, views, likes, duration)
-- `order` - Orden (asc, desc)
-
-### Ejemplos
-
+### Ejecutar en modo desarrollo:
 ```bash
-# Búsqueda con filtros
-GET /segments?search=react&tags=javascript,frontend&sort=views&order=desc
+python app.py
+```
 
-# Paginación
-GET /segments?page=2&limit=20
+### Ejecutar con script alternativo:
+```bash
+python run.py
+```
 
-# Segmentos de un usuario específico
-GET /segments?userId=507f1f77bcf86cd799439011
+### Ejecutar con debug activado:
+```bash
+export FLASK_ENV=development
+python app.py
 ```
 
 ## 🧪 Testing
 
+Para probar los endpoints, puedes usar herramientas como:
+- Postman
+- curl
+- Insomnia
+- Thunder Client (VS Code extension)
+
+### Ejemplo de petición de login:
 ```bash
-# Ejecutar tests
-npm test
-
-# Tests con coverage
-npm run test:coverage
-
-# Tests en modo watch
-npm run test:watch
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "user@example.com", "password": "password123"}'
 ```
 
-## 📈 Monitoreo y Logs
+## 📝 Logs
 
-- **Morgan** para logs de HTTP
-- **Logs estructurados** para debugging
-- **Manejo de errores** centralizado
-- **Métricas básicas** de rendimiento
+El sistema incluye logs detallados que muestran:
+- Todas las peticiones HTTP
+- Headers de las peticiones
+- Cuerpo de las peticiones (si aplica)
+- Errores y excepciones
+- Operaciones de base de datos
 
-## 🚀 Deployment
+## 🔒 Seguridad
 
-### Variables de Entorno para Producción
+**Nota**: Esta versión mantiene las contraseñas en texto plano. Para un entorno de producción, se recomienda implementar:
 
-```env
-NODE_ENV=production
-PORT=5000
-MONGODB_URI=mongodb://your-production-db-url
-JWT_SECRET=your-super-secure-production-secret
-FRONTEND_URL=https://your-frontend-domain.com
+- Hashing de contraseñas (bcrypt)
+- JWT para autenticación
+- Validación de entrada más robusta
+- Rate limiting
+- HTTPS
+
+## 🚀 Despliegue
+
+### Heroku
+1. Crear `Procfile`:
+   ```
+   web: python app.py
+   ```
+
+2. Configurar variables de entorno en Heroku:
+   ```bash
+   heroku config:set MONGODB_URI=your_mongodb_uri
+   heroku config:set FLASK_ENV=production
+   ```
+
+### Docker
+Crear `Dockerfile`:
+```dockerfile
+FROM python:3.9-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+EXPOSE 5000
+CMD ["python", "app.py"]
 ```
 
-### Consideraciones de Producción
+## 📞 Soporte
 
-1. **Cambiar JWT_SECRET** por una clave segura
-2. **Configurar MongoDB** en la nube (Atlas, etc.)
-3. **Configurar CORS** para el dominio de producción
-4. **Habilitar compresión** y optimizaciones
-5. **Configurar logs** para monitoreo
-6. **Implementar rate limiting**
-7. **Configurar SSL/TLS**
+Para reportar bugs o solicitar nuevas características, por favor crear un issue en el repositorio.
 
-## 🤝 Contribución
+## 📄 Licencia
 
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
-
-## 📝 Licencia
-
-Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
-
-## 🆘 Soporte
-
-Si tienes problemas o preguntas:
-
-1. Revisa la documentación
-2. Busca en los issues existentes
-3. Crea un nuevo issue con detalles del problema
-
-## 🔄 Changelog
-
-### v1.0.0
-- Implementación inicial del backend
-- Sistema de autenticación JWT
-- CRUD completo para segmentos
-- Sistema de escenas
-- Búsqueda y filtros
-- Paginación
-- Validación robusta
-- Documentación completa 
+MIT License 
