@@ -95,11 +95,11 @@ def handle_exception(error):
 # Handler para Vercel serverless
 def handler(request, context):
     try:
-        from vercel_wsgi import handle_request
+        from vercel_python_wsgi import handle_request
         return handle_request(app, request, context)
     except ImportError:
         # Fallback para desarrollo local
-        print("⚠️ vercel-wsgi no disponible, ejecutando en modo desarrollo")
+        print("⚠️ vercel-python-wsgi no disponible, ejecutando en modo desarrollo")
         return app(request, context)
 
 if __name__ == '__main__':

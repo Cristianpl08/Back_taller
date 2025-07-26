@@ -125,7 +125,7 @@ python run.py
 
 ### Error: "Module not found"
 - Verifica que todas las dependencias estén en `requirements.txt`
-- Asegúrate de que `vercel-wsgi` esté incluido
+- Asegúrate de que `vercel-python-wsgi` esté incluido
 
 ### Error: "Database connection failed"
 - Verifica que `MONGODB_URI` esté configurado correctamente
