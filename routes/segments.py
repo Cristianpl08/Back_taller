@@ -2,7 +2,7 @@ from flask import Blueprint
 from controllers.segment_controller import (
     get_segments, get_segment, get_segments_by_project,
     create_segment, update_segment, delete_segment,
-    increment_views, increment_likes
+    increment_views, increment_likes, update_descriptions_prosody
 )
 
 # Crear blueprint para segmentos
@@ -47,4 +47,10 @@ def increment_views_route(segment_id):
 @segments_bp.route('/<segment_id>/likes', methods=['POST'])
 def increment_likes_route(segment_id):
     """Incrementar contador de likes de un segmento"""
-    return increment_likes(segment_id) 
+    return increment_likes(segment_id)
+
+@segments_bp.route('/<segment_id>/descriptions_prosody', methods=['POST'])
+def update_descriptions_prosody_route(segment_id):
+    """Actualizar/agregar campo de descriptions_prosody para un usuario en un segmento"""
+    # El segment_id se puede usar para validar que coincida con el body, pero el controlador usa el del body
+    return update_descriptions_prosody() 

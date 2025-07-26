@@ -334,6 +334,63 @@ def update_segment(segment_id):
             'message': 'Error al actualizar segmento'
         }), 500
 
+def update_descriptions_prosody():
+    """Actualizar/agregar campo de descriptions_prosody para un usuario en un segmento, guardando timestamp por campo"""
+    try:
+        data = request.get_json()
+        segment_id = data.get('segmentId')
+        user_id = data.get('userId')
+        field_name = data.get('fieldName')
+        field_value = data.get('fieldValue')
+        timestamp = data.get('timestamp')
+
+        if not all([segment_id, user_id, field_name, field_value, timestamp]):
+            return jsonify({
+                'success': False,
+                'message': 'Faltan campos requeridos'
+            }), 400
+
+        db = get_db()
+        segment = Segment.find_by_id(db, segment_id)
+        if not segment:
+            return jsonify({
+                'success': False,
+                'message': 'Segmento no encontrado'
+            }), 404
+
+        # Buscar si el usuario ya tiene entrada en descriptions_prosody
+        updated = False
+        for entry in segment.descriptions_prosody:
+            if entry.get('user_id') == user_id:
+                entry[field_name] = field_value
+                # Guardar timestamp por campo
+                if 'timestamps' not in entry:
+                    entry['timestamps'] = {}
+                entry['timestamps'][field_name] = timestamp
+                updated = True
+                break
+        if not updated:
+            # Crear nueva entrada para el usuario
+            new_entry = {
+                'user_id': user_id,
+                field_name: field_value,
+                'timestamps': {field_name: timestamp}
+            }
+            segment.descriptions_prosody.append(new_entry)
+
+        segment.save(db)
+        return jsonify({
+            'success': True,
+            'message': 'Campo actualizado exitosamente',
+            'data': {'segment': segment.to_response_dict()}
+        })
+    except Exception as error:
+        print('💥 Error en update_descriptions_prosody:', str(error))
+        return jsonify({
+            'success': False,
+            'message': 'Error al actualizar descriptions_prosody'
+        }), 500
+
 def delete_segment(segment_id):
     """Eliminar un segmento"""
     try:
