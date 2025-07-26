@@ -2,9 +2,10 @@ from datetime import datetime
 from bson import ObjectId
 
 class Project:
-    def __init__(self, video, _id=None, created_at=None, updated_at=None):
+    def __init__(self, video, audio=None, _id=None, created_at=None, updated_at=None):
         self._id = _id
         self.video = video
+        self.audio = audio
         self.created_at = created_at or datetime.now()
         self.updated_at = updated_at or datetime.now()
     
@@ -12,6 +13,7 @@ class Project:
         """Convertir a diccionario para MongoDB"""
         data = {
             'video': self.video,
+            'audio': self.audio,
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
@@ -25,6 +27,7 @@ class Project:
         return cls(
             _id=data.get('_id'),
             video=data.get('video'),
+            audio=data.get('audio'),
             created_at=data.get('created_at'),
             updated_at=data.get('updated_at')
         )
@@ -76,6 +79,7 @@ class Project:
         return {
             '_id': str(self._id),
             'video': self.video,
+            'audio': self.audio,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         } 

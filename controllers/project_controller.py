@@ -1,11 +1,12 @@
 from flask import request, jsonify
 from models.project import Project
+from models.segment import Segment
 from config.database import get_db
 
 def get_projects():
-    """Obtener todos los proyectos"""
+    """Obtener todos los proyectos con sus segmentos"""
     try:
-        print('🎬 Obteniendo todos los proyectos')
+        print('🎬 Obteniendo todos los proyectos con sus segmentos')
         
         # Obtener base de datos
         db = get_db()
@@ -15,8 +16,22 @@ def get_projects():
         
         print(f'✅ Proyectos encontrados: {len(projects)}')
         
-        # Convertir a formato de respuesta
-        projects_data = [project.to_response_dict() for project in projects]
+        # Convertir a formato de respuesta e incluir segmentos
+        projects_data = []
+        for project in projects:
+            project_dict = project.to_response_dict()
+            
+            # Obtener segmentos del proyecto
+            print(f'🔍 Obteniendo segmentos para proyecto: {project._id}')
+            segments = Segment.find_by_project(db, str(project._id))
+            segments_data = [segment.to_response_dict() for segment in segments]
+            
+            # Agregar segmentos al proyecto
+            project_dict['segments'] = segments_data
+            project_dict['segments_count'] = len(segments_data)
+            
+            projects_data.append(project_dict)
+            print(f'✅ Proyecto {project._id} con {len(segments_data)} segmentos')
         
         response = {
             'success': True,
@@ -38,7 +53,7 @@ def get_projects():
         }), 500
 
 def get_project(project_id):
-    """Obtener un proyecto por ID"""
+    """Obtener un proyecto por ID con sus segmentos"""
     try:
         print(f'🎬 Obteniendo proyecto con ID: {project_id}')
         
@@ -57,14 +72,25 @@ def get_project(project_id):
         
         print(f'✅ Proyecto encontrado: {project_id}')
         
+        # Obtener segmentos del proyecto
+        print(f'🔍 Obteniendo segmentos para proyecto: {project_id}')
+        segments = Segment.find_by_project(db, project_id)
+        segments_data = [segment.to_response_dict() for segment in segments]
+        
+        # Preparar respuesta con proyecto y segmentos
+        project_data = project.to_response_dict()
+        project_data['segments'] = segments_data
+        project_data['segments_count'] = len(segments_data)
+        
         response = {
             'success': True,
             'message': 'Proyecto obtenido exitosamente',
             'data': {
-                'project': project.to_response_dict()
+                'project': project_data
             }
         }
         
+        print(f'✅ Proyecto {project_id} con {len(segments_data)} segmentos')
         print('📤 Enviando respuesta exitosa:', response)
         return jsonify(response)
         
@@ -80,9 +106,10 @@ def create_project():
     try:
         data = request.get_json()
         video = data.get('video')
+        audio = data.get('audio')
         
         print('🎬 Creando nuevo proyecto')
-        print('📋 Datos recibidos:', {'video': video})
+        print('📋 Datos recibidos:', {'video': video, 'audio': audio})
 
         # Validar datos requeridos
         if not video:
@@ -95,13 +122,14 @@ def create_project():
         db = get_db()
 
         # Crear nuevo proyecto
-        project = Project(video=video)
+        project = Project(video=video, audio=audio)
         
         print('💾 Guardando proyecto en la base de datos...')
         project.save(db)
         print('✅ Proyecto guardado exitosamente:', {
             '_id': str(project._id),
-            'video': project.video
+            'video': project.video,
+            'audio': project.audio
         })
 
         # Respuesta exitosa
@@ -128,9 +156,10 @@ def update_project(project_id):
     try:
         data = request.get_json()
         video = data.get('video')
+        audio = data.get('audio')
         
         print(f'🎬 Actualizando proyecto con ID: {project_id}')
-        print('📋 Datos recibidos:', {'video': video})
+        print('📋 Datos recibidos:', {'video': video, 'audio': audio})
 
         # Validar datos requeridos
         if not video:
@@ -154,12 +183,14 @@ def update_project(project_id):
 
         # Actualizar proyecto
         project.video = video
+        project.audio = audio
         
         print('💾 Guardando cambios en la base de datos...')
         project.save(db)
         print('✅ Proyecto actualizado exitosamente:', {
             '_id': str(project._id),
-            'video': project.video
+            'video': project.video,
+            'audio': project.audio
         })
 
         # Respuesta exitosa
