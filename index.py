@@ -86,6 +86,16 @@ def handle_exception(error):
         'message': str(error) or 'Error interno del servidor'
     }), 500
 
+# Handler para Vercel serverless
+def handler(request, context):
+    try:
+        from vercel_wsgi import handle_request
+        return handle_request(app, request, context)
+    except ImportError:
+        # Fallback para desarrollo local
+        print("⚠️ vercel-wsgi no disponible, ejecutando en modo desarrollo")
+        return app(request, context)
+
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 5000))
     print(f"🚀 Servidor corriendo en puerto {PORT}")

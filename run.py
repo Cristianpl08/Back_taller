@@ -6,7 +6,7 @@ Video Segments Player Backend
 
 import os
 import sys
-from app import app
+from index import app
 
 if __name__ == '__main__':
     # Configurar variables de entorno por defecto si no existen

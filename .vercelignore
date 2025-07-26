@@ -1,0 +1,43 @@
+# Archivos de desarrollo
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Archivos de configuración local
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Archivos de git
+.git/
+.gitignore
+
+# Archivos de documentación
+README.md
+docs/
+
+# Scripts de desarrollo
+run.py
+scripts/
+
+# Archivos de logs
+*.log 
