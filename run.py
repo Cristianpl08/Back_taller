@@ -17,19 +17,21 @@ if __name__ == '__main__':
         os.environ['PORT'] = '5000'
     
     if not os.environ.get('FLASK_ENV'):
-        os.environ['FLASK_ENV'] = 'development'
+        os.environ['FLASK_ENV'] = 'production'
     
     # Obtener puerto
     port = int(os.environ.get('PORT', 5000))
     
     print("🚀 Iniciando Video Segments Player Backend (Flask)")
     print(f"📡 Puerto: {port}")
-    print(f"🌍 Ambiente: {os.environ.get('FLASK_ENV', 'development')}")
+    print(f"🌍 Ambiente: {os.environ.get('FLASK_ENV', 'production')}")
     print(f"🗄️ MongoDB: {os.environ.get('MONGODB_URI', 'mongodb://localhost:27017/video-segments-player')}")
     print("=" * 50)
     
     try:
-        app.run(host='0.0.0.0', port=port, debug=True)
+        # En producción, no usar debug mode
+        debug_mode = os.environ.get('FLASK_ENV') == 'development'
+        app.run(host='0.0.0.0', port=port, debug=debug_mode)
     except KeyboardInterrupt:
         print("\n👋 Servidor detenido por el usuario")
         sys.exit(0)
