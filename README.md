@@ -217,12 +217,26 @@ El sistema incluye logs detallados que muestran:
    - `runtime.txt`: `python-3.11.7`
    - `nixpacks.toml`: Configuración de build
 
-2. Configurar variables de entorno en Railway:
+2. **Configurar variables de entorno en Railway (OBLIGATORIO):**
+   
+   Ve a tu proyecto en Railway → Variables → Add Variable
+   
    ```bash
    MONGODB_URI=mongodb+srv://test:Camilo97@testad.htu4tut.mongodb.net/testad?retryWrites=true&w=majority&appName=testad
-   JWT_SECRET_KEY=your-secret-key-change-in-production
+   JWT_SECRET_KEY=tu-clave-secreta-super-segura-aqui
    FLASK_ENV=production
    ```
+
+3. **Verificar configuración:**
+   Si tienes problemas, puedes ejecutar el script de verificación:
+   ```bash
+   python scripts/check_env.py
+   ```
+
+4. **Troubleshooting:**
+   - Si ves "MongoDB local" en los logs, significa que `MONGODB_URI` no está configurada
+   - Railway configurará `PORT` automáticamente
+   - Asegúrate de que `FLASK_ENV=production`
 
 ### Heroku (Alternativo)
 1. Crear `Procfile`:

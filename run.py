@@ -11,6 +11,8 @@ from index import app
 if __name__ == '__main__':
     # Configurar variables de entorno por defecto si no existen
     if not os.environ.get('MONGODB_URI'):
+        print("⚠️ ADVERTENCIA: MONGODB_URI no está configurada!")
+        print("🔧 Configurando MongoDB local por defecto...")
         os.environ['MONGODB_URI'] = 'mongodb://localhost:27017/video-segments-player'
     
     if not os.environ.get('PORT'):
@@ -18,6 +20,10 @@ if __name__ == '__main__':
     
     if not os.environ.get('FLASK_ENV'):
         os.environ['FLASK_ENV'] = 'production'
+    
+    if not os.environ.get('JWT_SECRET_KEY'):
+        print("⚠️ ADVERTENCIA: JWT_SECRET_KEY no está configurada!")
+        os.environ['JWT_SECRET_KEY'] = 'your-secret-key-change-in-production'
     
     # Obtener puerto
     port = int(os.environ.get('PORT', 5000))
@@ -27,6 +33,13 @@ if __name__ == '__main__':
     print(f"🌍 Ambiente: {os.environ.get('FLASK_ENV', 'production')}")
     print(f"🗄️ MongoDB: {os.environ.get('MONGODB_URI', 'mongodb://localhost:27017/video-segments-player')}")
     print("=" * 50)
+    
+    # Verificar si estamos usando MongoDB local en producción
+    if os.environ.get('FLASK_ENV') == 'production' and 'localhost' in os.environ.get('MONGODB_URI', ''):
+        print("❌ ERROR: Estás usando MongoDB local en producción!")
+        print("🔧 Configura MONGODB_URI en Railway con tu conexión de MongoDB Atlas")
+        print("📝 Ejemplo: mongodb+srv://usuario:password@cluster.mongodb.net/database")
+        sys.exit(1)
     
     try:
         # En producción, no usar debug mode
