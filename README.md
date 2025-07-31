@@ -44,15 +44,18 @@ Backend para la aplicación Video Segments Player desarrollado en Python con Fla
 4. **Configurar variables de entorno**:
    Crear un archivo `.env` en la raíz del proyecto:
    ```env
-   MONGODB_URI=mongodb://localhost:27017/video-segments-player
-   MONGODB_DB=video-segments-player
+   MONGODB_URI=mongodb+srv://test:Camilo97@testad.htu4tut.mongodb.net/testad?retryWrites=true&w=majority&appName=testad
+   MONGODB_DB=testad
+   JWT_SECRET_KEY=your-secret-key-change-in-production
    PORT=5000
    FLASK_ENV=development
+   FRONTEND_URL=http://localhost:5173
+   LOG_LEVEL=info
    ```
 
 5. **Ejecutar el servidor**:
    ```bash
-   python app.py
+   python run.py
    ```
 
 ## 📡 Endpoints de la API
@@ -125,18 +128,22 @@ Backend para la aplicación Video Segments Player desarrollado en Python con Fla
 
 ```
 Back_taller/
-├── app.py                 # Archivo principal de Flask
-├── requirements.txt       # Dependencias de Python
-├── run.py                # Script alternativo de ejecución
-├── env.example           # Ejemplo de variables de entorno
+├── index.py              # Archivo principal de Flask
+├── requirements.txt      # Dependencias de Python
+├── run.py               # Script de ejecución principal
+├── Procfile             # Configuración para Railway
+├── runtime.txt          # Versión de Python
+├── nixpacks.toml        # Configuración de build
+├── env.example          # Ejemplo de variables de entorno
 ├── config/
 │   ├── __init__.py
-│   └── database.py        # Configuración de MongoDB
+│   ├── database.py       # Configuración de MongoDB
+│   └── jwt_config.py     # Configuración JWT
 ├── models/
 │   ├── __init__.py
-│   ├── user.py           # Modelo de Usuario
-│   ├── project.py        # Modelo de Proyecto
-│   └── segment.py        # Modelo de Segmento
+│   ├── user.py          # Modelo de Usuario
+│   ├── project.py       # Modelo de Proyecto
+│   └── segment.py       # Modelo de Segmento
 ├── controllers/
 │   ├── __init__.py
 │   ├── auth_controller.py    # Controlador de autenticación
@@ -153,11 +160,12 @@ Back_taller/
 
 ### Ejecutar en modo desarrollo:
 ```bash
-python app.py
+python run.py
 ```
 
-### Ejecutar con script alternativo:
+### Ejecutar con debug activado:
 ```bash
+export FLASK_ENV=development
 python run.py
 ```
 
@@ -203,28 +211,42 @@ El sistema incluye logs detallados que muestran:
 
 ## 🚀 Despliegue
 
-### Heroku
+### Railway
+1. El proyecto ya incluye los archivos necesarios:
+   - `Procfile`: `web: python run.py`
+   - `runtime.txt`: `python-3.11.7`
+   - `nixpacks.toml`: Configuración de build
+
+2. Configurar variables de entorno en Railway:
+   ```bash
+   MONGODB_URI=mongodb+srv://test:Camilo97@testad.htu4tut.mongodb.net/testad?retryWrites=true&w=majority&appName=testad
+   JWT_SECRET_KEY=your-secret-key-change-in-production
+   FLASK_ENV=production
+   ```
+
+### Heroku (Alternativo)
 1. Crear `Procfile`:
    ```
-   web: python app.py
+   web: python run.py
    ```
 
 2. Configurar variables de entorno en Heroku:
    ```bash
-   heroku config:set MONGODB_URI=your_mongodb_uri
+   heroku config:set MONGODB_URI=mongodb+srv://test:Camilo97@testad.htu4tut.mongodb.net/testad?retryWrites=true&w=majority&appName=testad
+   heroku config:set JWT_SECRET_KEY=your-secret-key-change-in-production
    heroku config:set FLASK_ENV=production
    ```
 
 ### Docker
 Crear `Dockerfile`:
 ```dockerfile
-FROM python:3.9-slim
+FROM python:3.11-slim
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY . .
 EXPOSE 5000
-CMD ["python", "app.py"]
+CMD ["python", "run.py"]
 ```
 
 ## 📞 Soporte
